@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriLog v2.5 | Tech Product Launch</title>
+    <style>
+        /* Coding Theme: Dark Background & Neon Text */
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .terminal {
+            background-color: #161b22;
+            border: 2px solid #58a6ff;
+            border-radius: 8px;
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.2);
+        }
+
+        h1 { color: #d2a8ff; text-align: center; }
+        .prompt { color: #f2cc60; margin-bottom: 10px; }
+        input, button {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #58a6ff;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            width: calc(100% - 22px);
+        }
+
+        button {
+            background-color: #238636;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover { background-color: #2ea043; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #30363d;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th { color: #f2cc60; }
+        .alert { color: #ff7b72; font-weight: bold; }
+        .success { color: #3fb950; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="terminal">
+        <h1>>>> NUTRILOG v2.5 <<<</h1>
+        <p style="text-align:center; color:#8b949e;">// System initialized. Data loaded.</p>
+        
+        <div id="setup">
+            <p class="prompt">[SETUP] Set Daily Calorie Goal:</p>
+            <input type="number" id="goalInput" placeholder="e.g. 2000">
+            <button onclick="setGoal()">Initialize System</button>
+        </div>
+
+        <div id="tracker" style="display:none;">
+            <p class="prompt">[INPUT] Enter Food Name:</p>
+            <input type="text" id="foodInput" placeholder="Try 'milk tea' or 'onigiri'">
+            <button onclick="addFood()">Add to Log</button>
+            
+            <div id="report">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Food</th>
+                            <th>Cals</th>
+                            <th>P</th>
+                            <th>C</th>
+                            <th>F</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTableBody"></tbody>
+                </table>
+                <p id="summary" style="margin-top:20px;"></p>
+                <p id="status"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Collection: 50+ Fact-Based Food Items
+const db = {
+    // Original Items
+    "onigiri": { name: "Onigiri", cal: 180, p: 4, c: 38, f: 1.5 },
+    "milk tea": { name: "Milk Tea", cal: 400, p: 3, c: 60, f: 15 },
+    "tea egg": { name: "Tea Egg", cal: 75, p: 7, c: 1, f: 5 },
+    "beef noodles": { name: "Beef Noodles", cal: 650, p: 35, c: 75, f: 25 },
+    "burger": { name: "Burger", cal: 550, p: 25, c: 45, f: 28 },
+    "apple": { name: "Apple", cal: 95, p: 0.5, c: 25, f: 0.3 },
+
+    // Proteins
+    "chicken breast": { name: "Chicken Breast (150g)", cal: 247, p: 46, c: 0, f: 5.2 },
+    "salmon": { name: "Salmon Fillet (150g)", cal: 312, p: 38, c: 0, f: 18 },
+    "boiled egg": { name: "Boiled Egg (1 pc)", cal: 78, p: 6.3, c: 0.6, f: 5.3 },
+    "tofu": { name: "Tofu (100g)", cal: 76, p: 8, c: 1.9, f: 4.8 },
+    "steak": { name: "Beef Steak (200g)", cal: 540, p: 52, c: 0, f: 36 },
+    "shrimp": { name: "Shrimp (100g)", cal: 99, p: 24, c: 0.2, f: 0.3 },
+    "greek yogurt": { name: "Greek Yogurt (170g)", cal: 100, p: 17, c: 6, f: 0.7 },
+    "tuna": { name: "Canned Tuna (100g)", cal: 116, p: 26, c: 0, f: 0.8 },
+    "bacon": { name: "Bacon (2 slices)", cal: 86, p: 6, c: 0.2, f: 6.6 },
+    "turkey": { name: "Turkey Breast (100g)", cal: 135, p: 30, c: 0, f: 0.7 },
+
+    // Grains & Carbs
+    "white rice": { name: "White Rice (1 cup)", cal: 205, p: 4.3, c: 45, f: 0.4 },
+    "brown rice": { name: "Brown Rice (1 cup)", cal: 216, p: 5, c: 45, f: 1.8 },
+    "oatmeal": { name: "Oatmeal (1 cup)", cal: 158, p: 6, c: 27, f: 3.2 },
+    "pasta": { name: "Cooked Pasta (1 cup)", cal: 220, p: 8, c: 43, f: 1.3 },
+    "sweet potato": { name: "Sweet Potato (Medium)", cal: 103, p: 2.3, c: 24, f: 0.2 },
+    "white bread": { name: "White Bread (1 slice)", cal: 75, p: 2.3, c: 14, f: 1 },
+    "whole wheat bread": { name: "Whole Wheat Bread (1 slice)", cal: 82, p: 4, c: 14, f: 1.1 },
+    "quinoa": { name: "Quinoa (1 cup)", cal: 222, p: 8, c: 39, f: 3.6 },
+    "bagel": { name: "Bagel (Plain)", cal: 245, p: 10, c: 48, f: 1.5 },
+    "corn": { name: "Corn (1 ear)", cal: 88, p: 3.3, c: 19, f: 1.4 },
+
+    // Fruits & Veggies
+    "banana": { name: "Banana", cal: 105, p: 1.3, c: 27, f: 0.4 },
+    "avocado": { name: "Avocado (Half)", cal: 160, p: 2, c: 8.5, f: 14.7 },
+    "broccoli": { name: "Broccoli (1 cup)", cal: 31, p: 2.5, c: 6, f: 0.3 },
+    "spinach": { name: "Spinach (1 cup raw)", cal: 7, p: 0.9, c: 1.1, f: 0.1 },
+    "blueberries": { name: "Blueberries (1 cup)", cal: 84, p: 1.1, c: 21, f: 0.5 },
+    "orange": { name: "Orange", cal: 62, p: 1.2, c: 15, f: 0.2 },
+    "carrot": { name: "Carrot", cal: 41, p: 0.9, c: 10, f: 0.2 },
+    "strawberries": { name: "Strawberries (1 cup)", cal: 49, p: 1, c: 12, f: 0.5 },
+    "grapes": { name: "Grapes (1 cup)", cal: 104, p: 1.1, c: 27, f: 0.2 },
+    "potato": { name: "Baked Potato", cal: 161, p: 4.3, c: 37, f: 0.2 },
+
+    // Snacks & Fast Food
+    "pizza": { name: "Pizza (1 slice)", cal: 285, p: 12, c: 36, f: 10 },
+    "fries": { name: "Medium Fries", cal: 365, p: 4, c: 48, f: 17 },
+    "almonds": { name: "Almonds (28g)", cal: 164, p: 6, c: 6.1, f: 14.2 },
+    "peanut butter": { name: "Peanut Butter (2 tbsp)", cal: 188, p: 8, c: 6, f: 16 },
+    "dark chocolate": { name: "Dark Chocolate (1oz)", cal: 170, p: 2.2, c: 13, f: 12 },
+    "popcorn": { name: "Popcorn (3 cups)", cal: 93, p: 3, c: 19, f: 1.1 },
+    "chips": { name: "Potato Chips (1oz)", cal: 152, p: 2, c: 15, f: 10 },
+    "coke": { name: "Cola (Can)", cal: 140, p: 0, c: 39, f: 0 },
+    "donut": { name: "Glazed Donut", cal: 260, p: 3, c: 31, f: 14 },
+    "ice cream": { name: "Vanilla Ice Cream (1/2 cup)", cal: 137, p: 2.3, c: 15, f: 7.3 },
+
+    // Meals/Others
+    "sushi": { name: "Salmon Nigiri (2 pcs)", cal: 100, p: 6, c: 18, f: 1 },
+    "ramen": { name: "Instant Ramen", cal: 380, p: 9, c: 52, f: 14 },
+    "caesar salad": { name: "Caesar Salad", cal: 470, p: 10, c: 15, f: 40 },
+    "omelette": { name: "Cheese Omelette", cal: 320, p: 20, c: 4, f: 24 },
+    "sandwich": { name: "Ham & Cheese Sandwich", cal: 350, p: 18, c: 35, f: 15 },
+    "fried rice": { name: "Fried Rice (1 cup)", cal: 333, p: 6, c: 45, f: 12 },
+    "lasagna": { name: "Lasagna (1 slice)", cal: 408, p: 24, c: 35, f: 19 },
+    "hummus": { name: "Hummus (2 tbsp)", cal: 50, p: 2.4, c: 4, f: 3 },
+    "hot dog": { name: "Hot Dog (with bun)", cal: 290, p: 10, c: 18, f: 18 },
+    "milk": { name: "Whole Milk (1 cup)", cal: 149, p: 7.7, c: 11.7, f: 8 }
+};
+
+        let dailyGoal = 0;
+        let totalCals = 0;
+        let macros = { p: 0, c: 0, f: 0 };
+
+        function setGoal() {
+            dailyGoal = document.getElementById('goalInput').value;
+            if (dailyGoal > 0) {
+                document.getElementById('setup').style.display = 'none';
+                document.getElementById('tracker').style.display = 'block';
+                updateReport();
+            }
+        }
+
+        function addFood() {
+            let input = document.getElementById('foodInput').value.toLowerCase().trim();
+            let food = db[input];
+
+            if (food) {
+                const tableBody = document.getElementById('logTableBody');
+                const row = `<tr>
+                    <td>${food.name}</td>
+                    <td>${food.cal}</td>
+                    <td>${food.p}g</td>
+                    <td>${food.c}g</td>
+                    <td>${food.f}g</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+
+                totalCals += food.cal;
+                macros.p += food.p;
+                macros.c += food.c;
+                macros.f += food.f;
+                
+                updateReport();
+            } else {
+                alert("Item not found in trending database. (Try 'milk tea' or 'burger')");
+            }
+            document.getElementById('foodInput').value = "";
+        }
+
+        function updateReport() {
+            document.getElementById('summary').innerHTML = 
+                `TOTAL: ${totalCals} / ${dailyGoal} kcal<br>` +
+                `MACROS: P: ${macros.p.toFixed(1)}g | C: ${macros.c.toFixed(1)}g | F: ${macros.f.toFixed(1)}g`;
+
+            let status = document.getElementById('status');
+            if (totalCals > dailyGoal) {
+                status.innerHTML = "[ALERT] CALORIE LIMIT EXCEEDED";
+                status.className = "alert";
+            } else {
+                status.innerHTML = "[SUCCESS] WITHIN DAILY LIMIT";
+                status.className = "success";
+            }
+        }
+    </script>
+</body>
+</html>
