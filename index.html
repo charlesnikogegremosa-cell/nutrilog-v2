@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NutriLog v2.5 | Tech Product Launch</title>
+    <title>NutriLog v2.5 | Professional Tech Launch</title>
     <style>
-        /* Coding Theme: Dark Background & Neon Text */
         body {
             background-color: #0d1117;
             color: #c9d1d9;
@@ -21,88 +20,188 @@
             border: 2px solid #58a6ff;
             border-radius: 8px;
             padding: 20px;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 0 20px rgba(88, 166, 255, 0.2);
+            width: 95%;
+            max-width: 700px;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 15px rgba(88, 166, 255, 0.1);
         }
 
-        h1 { color: #d2a8ff; text-align: center; }
-        .prompt { color: #f2cc60; margin-bottom: 10px; }
+        /* --- Advanced Glow Animations --- */
+        .glow-green {
+            border-color: #3fb950 !important;
+            box-shadow: 0 0 25px rgba(63, 185, 80, 0.6), inset 0 0 10px rgba(63, 185, 80, 0.3);
+        }
+
+        .glow-red {
+            border-color: #ff7b72 !important;
+            box-shadow: 0 0 25px rgba(255, 123, 114, 0.6), inset 0 0 10px rgba(255, 123, 114, 0.3);
+        }
+
+        h1 { color: #d2a8ff; text-align: center; margin-top: 0; }
+        .prompt { color: #f2cc60; margin-bottom: 10px; font-weight: bold; }
+        
         input, button {
             background: #0d1117;
             border: 1px solid #30363d;
             color: #58a6ff;
-            padding: 10px;
+            padding: 12px;
             margin: 5px 0;
             border-radius: 4px;
-            width: calc(100% - 22px);
+            width: calc(100% - 26px);
+            font-family: inherit;
+            font-size: 14px;
         }
 
-        button {
-            background-color: #238636;
-            color: white;
+        input:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+
+        .btn-submit { background-color: #238636; color: white; cursor: pointer; border: none; font-weight: bold;}
+        .btn-submit:hover { background-color: #2ea043; }
+        .btn-done { background-color: #21262d; color: #c9d1d9; cursor: pointer; margin-top: 10px; }
+        .btn-done:hover { background-color: #30363d; border-color: #8b949e; }
+
+        .manual-box {
+            border: 1px dashed #f2cc60;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+            border-radius: 6px;
+        }
+
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .grid-inputs input { width: calc(100% - 26px); }
+
+        /* --- Macro Dashboard UI --- */
+        .dashboard {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: #0d1117;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border: 1px solid #30363d;
+        }
+        .metric { text-align: center; }
+        .metric-val { font-size: 1.4em; font-weight: bold; color: #58a6ff; }
+
+        /* --- Collapsible Dictionary --- */
+        .db-viewer {
+            margin-top: 15px;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+        }
+        .db-header {
+            background: #21262d;
+            padding: 10px;
             cursor: pointer;
-            width: 100%;
+            color: #8b949e;
+            user-select: none;
         }
-
-        button:hover { background-color: #2ea043; }
+        .db-content {
+            display: none;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 12px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+        }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-
-        th, td {
-            border: 1px solid #30363d;
-            padding: 8px;
-            text-align: left;
-        }
-
-        th { color: #f2cc60; }
-        .alert { color: #ff7b72; font-weight: bold; }
-        .success { color: #3fb950; font-weight: bold; }
+        th, td { border: 1px solid #30363d; padding: 10px; text-align: left; }
+        th { color: #f2cc60; background-color: #0d1117; }
     </style>
 </head>
 <body>
 
-    <div class="terminal">
-        <h1>>>> NUTRILOG v2.5 <<<</h1>
-        <p style="text-align:center; color:#8b949e;">// System initialized. Data loaded.</p>
+    <div id="mainTerminal" class="terminal">
+        <h1>>>> NUTRILOG v2.5_PRO <<<</h1>
+        <p style="text-align:center; color:#8b949e; margin-bottom: 20px;">[System Hotkeys: Empty Backspace to Finish | Enter to Log]</p>
         
         <div id="setup">
-            <p class="prompt">[SETUP] Set Daily Calorie Goal:</p>
-            <input type="number" id="goalInput" placeholder="e.g. 2000">
-            <button onclick="setGoal()">Initialize System</button>
+            <p class="prompt">[SETUP] Initialize Daily Target:</p>
+            <input type="number" id="goalInput" placeholder="Set calorie target (e.g. 2000)" onkeydown="handleSetup(event)">
+            <button class="btn-submit" onclick="setGoal()">BOOT SYSTEM</button>
         </div>
 
         <div id="tracker" style="display:none;">
-            <p class="prompt">[INPUT] Enter Food Name:</p>
-            <input type="text" id="foodInput" placeholder="Try 'milk tea' or 'onigiri'">
-            <button onclick="addFood()">Add to Log</button>
             
+            <div class="dashboard">
+                <div class="metric">
+                    <div>Target</div>
+                    <div id="dashGoal" class="metric-val">0</div>
+                </div>
+                <div class="metric">
+                    <div>Calories</div>
+                    <div id="dashTotal" class="metric-val">0</div>
+                </div>
+                <div class="metric">
+                    <div>Protein</div>
+                    <div id="dashP" class="metric-val" style="color:#ff7b72;">0g</div>
+                </div>
+                <div class="metric">
+                    <div>Carbs</div>
+                    <div id="dashC" class="metric-val" style="color:#f2cc60;">0g</div>
+                </div>
+                <div class="metric">
+                    <div>Fats</div>
+                    <div id="dashF" class="metric-val" style="color:#7ee787;">0g</div>
+                </div>
+            </div>
+
+            <p class="prompt">[INPUT] Core Registry Lookup (Food Name):</p>
+            <input type="text" id="foodInput" placeholder="Lookup items or type 'done'..." onkeydown="handleTrackerKeys(event)">
+            <button class="btn-submit" onclick="processInput()">LOG INSTANCE</button>
+            <button class="btn-done" onclick="finishSession()">COMPILE & TERMINATE SESSION</button>
+            
+            <div class="db-viewer">
+                <div class="db-header" onclick="toggleDbViewer()">+ Expand System Core Database Quick-Lookup</div>
+                <div id="dbContent" class="db-content"></div>
+            </div>
+
+            <div id="manualEntry" class="manual-box">
+                <p class="prompt" style="color:#ff7b72;">[!] Null Trace Exception: Manual Matrix Entry Required.</p>
+                <div class="grid-inputs">
+                    <input type="number" id="manCal" placeholder="Calorie Count">
+                    <input type="number" id="manP" placeholder="Protein (g)">
+                    <input type="number" id="manC" placeholder="Carbohydrates (g)">
+                    <input type="number" id="manF" placeholder="Lipids/Fats (g)">
+                </div>
+                <button onclick="submitManual()" style="background-color: #f2cc60; color: #0d1117; font-weight: bold; border: none;">APPEND NEW MEMORY NODE</button>
+            </div>
+
             <div id="report">
                 <table>
                     <thead>
-                        <tr>
-                            <th>Food</th>
-                            <th>Cals</th>
-                            <th>P</th>
-                            <th>C</th>
-                            <th>F</th>
-                        </tr>
+                        <tr><th>System Registry Node</th><th>Energy (kcal)</th><th>P (g)</th><th>C (g)</th><th>F (g)</th></tr>
                     </thead>
                     <tbody id="logTableBody"></tbody>
                 </table>
-                <p id="summary" style="margin-top:20px;"></p>
-                <p id="status"></p>
+                <p id="status" style="font-weight: bold; font-size: 1.1em; margin-top: 15px; text-align: center;"></p>
             </div>
+        </div>
+
+        <div id="finalView" style="display:none; text-align: center; padding: 20px;">
+            <h2 id="finalStatusHeader" style="margin-bottom: 10px;">PROCESSING BLOCK STOPPED</h2>
+            <p style="color: #8b949e;">Data architecture compiling successfully completed. Session safe.</p>
+            <button onclick="location.reload()" style="background-color: #58a6ff; color: white; font-weight: bold; border: none; max-width: 250px;">RESET RUNTIME ENVIRONMENT</button>
         </div>
     </div>
 
     <script>
-        // Data Collection: 50+ Fact-Based Food Items
-const db = {
+        // Structural Database Framework Sourced from Averaged Food Matrix Specs
+        const db = {
     // Original Items
     "onigiri": { name: "Onigiri", cal: 180, p: 4, c: 38, f: 1.5 },
     "milk tea": { name: "Milk Tea", cal: 400, p: 3, c: 60, f: 15 },
@@ -175,55 +274,118 @@ const db = {
         let dailyGoal = 0;
         let totalCals = 0;
         let macros = { p: 0, c: 0, f: 0 };
+        let currentManualName = "";
+
+        // Core System Population Setup Loop
+        window.onload = function() {
+            const container = document.getElementById('dbContent');
+            Object.keys(db).forEach(key => {
+                container.innerHTML += `<div style="padding:2px; border-bottom:1px solid #21262d;">• ${key}</div>`;
+            });
+        };
+
+        function toggleDbViewer() {
+            const content = document.getElementById('dbContent');
+            const header = document.querySelector('.db-header');
+            if (content.style.display === "grid") {
+                content.style.display = "none";
+                header.innerText = "+ Expand System Core Database Quick-Lookup";
+            } else {
+                content.style.display = "grid";
+                header.innerText = "- Collapse System Core Database Quick-Lookup";
+            }
+        }
+
+        function handleSetup(e) { if (e.key === "Enter") setGoal(); }
+
+        function handleTrackerKeys(e) {
+            if (e.key === "Enter") processInput();
+            if (e.key === "Backspace" && document.getElementById('foodInput').value === "") {
+                finishSession();
+            }
+        }
 
         function setGoal() {
-            dailyGoal = document.getElementById('goalInput').value;
+            dailyGoal = parseInt(document.getElementById('goalInput').value);
             if (dailyGoal > 0) {
                 document.getElementById('setup').style.display = 'none';
                 document.getElementById('tracker').style.display = 'block';
+                document.getElementById('dashGoal').innerText = dailyGoal;
                 updateReport();
             }
         }
 
-        function addFood() {
+        function processInput() {
             let input = document.getElementById('foodInput').value.toLowerCase().trim();
+            if (input === "done") { finishSession(); return; }
+            
             let food = db[input];
-
             if (food) {
-                const tableBody = document.getElementById('logTableBody');
-                const row = `<tr>
-                    <td>${food.name}</td>
-                    <td>${food.cal}</td>
-                    <td>${food.p}g</td>
-                    <td>${food.c}g</td>
-                    <td>${food.f}g</td>
-                </tr>`;
-                tableBody.innerHTML += row;
-
-                totalCals += food.cal;
-                macros.p += food.p;
-                macros.c += food.c;
-                macros.f += food.f;
-                
-                updateReport();
+                addToLog(food.name, food.cal, food.p, food.c, food.f);
+                document.getElementById('foodInput').value = "";
             } else {
-                alert("Item not found in trending database. (Try 'milk tea' or 'burger')");
+                currentManualName = input;
+                document.getElementById('manualEntry').style.display = 'block';
             }
+        }
+
+        function submitManual() {
+            let cal = parseInt(document.getElementById('manCal').value) || 0;
+            let p = parseFloat(document.getElementById('manP').value) || 0;
+            let c = parseFloat(document.getElementById('manC').value) || 0;
+            let f = parseFloat(document.getElementById('manF').value) || 0;
+            
+            addToLog(currentManualName, cal, p, c, f);
+            document.getElementById('manualEntry').style.display = 'none';
             document.getElementById('foodInput').value = "";
+            document.getElementById('manCal').value = "";
+            document.getElementById('manP').value = "";
+            document.getElementById('manC').value = "";
+            document.getElementById('manF').value = "";
+        }
+
+        function addToLog(name, cal, p, c, f) {
+            const row = `<tr><td>${name}</td><td>${cal}</td><td>${p.toFixed(1)}g</td><td>${c.toFixed(1)}g</td><td>${f.toFixed(1)}g</td></tr>`;
+            document.getElementById('logTableBody').innerHTML += row;
+            totalCals += cal;
+            macros.p += p; macros.c += c; macros.f += f;
+            updateReport();
         }
 
         function updateReport() {
-            document.getElementById('summary').innerHTML = 
-                `TOTAL: ${totalCals} / ${dailyGoal} kcal<br>` +
-                `MACROS: P: ${macros.p.toFixed(1)}g | C: ${macros.c.toFixed(1)}g | F: ${macros.f.toFixed(1)}g`;
+            document.getElementById('dashTotal').innerText = totalCals;
+            document.getElementById('dashP').innerText = macros.p.toFixed(1) + 'g';
+            document.getElementById('dashC').innerText = macros.c.toFixed(1) + 'g';
+            document.getElementById('dashF').innerText = macros.f.toFixed(1) + 'g';
 
-            let status = document.getElementById('status');
+            const status = document.getElementById('status');
             if (totalCals > dailyGoal) {
-                status.innerHTML = "[ALERT] CALORIE LIMIT EXCEEDED";
-                status.className = "alert";
+                status.innerHTML = "[ALERT] SYSTEM BALANCE DETECTED OVER CRITICAL BUDGET LIMIT";
+                status.style.color = "#ff7b72";
             } else {
-                status.innerHTML = "[SUCCESS] WITHIN DAILY LIMIT";
-                status.className = "success";
+                status.innerHTML = "[SUCCESS] RESOURCE COMPILATION WITHIN ASSIGNED DATA BOUNDARIES";
+                status.style.color = "#3fb950";
+            }
+        }
+
+        function finishSession() {
+            document.getElementById('foodInput').style.display = 'none';
+            document.querySelector('.btn-submit').style.display = 'none';
+            document.querySelector('.btn-done').style.display = 'none';
+            document.querySelector('.db-viewer').style.display = 'none';
+            document.getElementById('manualEntry').style.display = 'none';
+            document.getElementById('finalView').style.display = 'block';
+
+            const terminal = document.getElementById('mainTerminal');
+            const finalHeader = document.getElementById('finalStatusHeader');
+            if (totalCals > dailyGoal) {
+                terminal.classList.add('glow-red');
+                finalHeader.innerText = "CRITICAL LIMIT EXCEEDED";
+                finalHeader.style.color = "#ff7b72";
+            } else {
+                terminal.classList.add('glow-green');
+                finalHeader.innerText = "SUCCESS: TARGET BALANCED";
+                finalHeader.style.color = "#3fb950";
             }
         }
     </script>
